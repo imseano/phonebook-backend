@@ -1,4 +1,5 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
 let persons = [
@@ -24,7 +25,14 @@ let persons = [
     }
 ]
 
+morgan.token('body', req => {
+    console.log(req.body)
+    return JSON.stringify(req.body)})
+
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(express.json())
+
 
 app.get('/api/persons', (req, res) => {
     res.json(persons)
@@ -66,7 +74,6 @@ const generateId = () => {
 
 app.post('/api/persons', (req, res) => {
     const person = req.body
-    console.log(person)
     if (!person.name || !person.number) {
         return res.status(400).json({
             error: 'name or number is missing'
@@ -83,7 +90,6 @@ app.post('/api/persons', (req, res) => {
         ...person
     }
     persons = persons.concat(newPerson)
-    console.log(newPerson)
     res.json(newPerson)
 })
 
