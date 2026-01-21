@@ -24,6 +24,8 @@ let persons = [
     }
 ]
 
+app.use(express.json())
+
 app.get('/api/persons', (req, res) => {
     res.json(persons)
 })
@@ -47,9 +49,33 @@ app.get('/info', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = req.params.id
+    if (!persons.find(person => person.id === id)) {
+        return res.status(404).end()
+    }
     persons = persons.filter(person => person.id !== id)
     res.status(204).end()
 })
+
+const generateId = () => {
+    let id = Math.floor(Math.random() * 1000)
+    while (persons.find(person => person.id === id.toString())) {
+        id = Math.floor(Math.random() * 1000)
+    }
+    return id.toString()
+}
+
+app.post('/api/persons', (req, res) => {
+    const person = req.body
+    console.log(person)
+    const newPerson = {
+        id: generateId(),
+        ...person
+    }
+    persons = persons.concat(newPerson)
+    console.log(newPerson)
+    res.json(newPerson)
+})
+
 const PORT = 3001
 app.listen(PORT, () => {
     console.log(`Server runnning on port ${PORT}`)
