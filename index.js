@@ -74,7 +74,6 @@ app.post('/api/persons', (req, res) => {
     }
 
     if (persons.find(p => p.name === person.name)) {
-        res.statusMessage = "Name must be unique"
         return res.status(400).json({
             error: 'name must be unique'
         })
