@@ -75,6 +75,25 @@ const generateId = () => {
     return id.toString()
 }
 
+app.put('/api/persons/:id', (req, res) => {
+    const id = req.params.id
+    const person = req.body
+    if (!person.name || !person.number) {
+        return res.status(400).json({
+            error: 'name or number is missing'
+        })
+    }
+
+    if (!persons.find(p => p.id === id)) {
+        return res.status(404).json({
+            error: 'person not found'
+        })
+    }
+
+    persons = persons.map(p => p.id !== id ? p : person)
+    res.json(person)
+})
+
 app.post('/api/persons', (req, res) => {
     const person = req.body
     if (!person.name || !person.number) {
