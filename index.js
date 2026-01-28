@@ -5,30 +5,6 @@ const cors = require('cors')
 const morgan = require('morgan')
 const app = express()
 
-/*
-let persons = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]*/
-
 const Person = require('./models/person')
 
 morgan.token('body', req => {
@@ -100,11 +76,12 @@ app.put('/api/persons/:id', (req, res, next) => {
             return person.save().then(updatedPerson => {
                 res.json(updatedPerson)
             })
+            .catch(error => next(error))
         })
         .catch(error => next(error))
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const body = req.body
     if (!body.name || !body.number) {
         return res.status(400).json({
@@ -125,6 +102,7 @@ app.post('/api/persons', (req, res) => {
     newPerson.save().then(savedPerson => {
         res.json(savedPerson)
     })
+    .catch(error => next(error))
 })
 
 const unknownEndpoint = (req, res) => {
@@ -137,6 +115,9 @@ const errorHandler = (err, req, res, next) => {
     console.log(err.message)
     if (err.name === "CastError") {
         return res.status(400).send({ error: 'malformatted id'})
+    }
+    if (err.name === 'ValidationError') {
+        return res.status(400).send({ error: err.message })
     }
 
     next(err)
